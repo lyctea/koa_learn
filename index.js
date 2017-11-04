@@ -1,35 +1,58 @@
-function getSyncTime() {
-    return new Promise((resolve, reject) => {
-        try {
-            let startTime = new Date().getTime()
-            setTimeout(() => {
-                let endTime = new Date().getTime()
-                let data = endTime - startTime
-                resolve(data)
-            }, 500)
-        } catch (err) {
-            console.log('never log')
-            reject(err)
-        }
-    })
-}
-
-async function getSyncData() {
-    let time = await getSyncTime()
-    let data = `endTime - startTime = ${time}`
-    return data
-}
-
-async function getData() {
-    let data = await getSyncData()
-    console.log(data)
-}
-
-console.log(getData())
+const Koa = require('koa')
+const fs = require('fs')
+const app = new Koa()
 
 /**
- * async/await的特点
- * 可以让异步逻辑用同步写法实现
- * 最底层await返回需要是promise对象
- * 可以通过多层async function的同步写法代替传统的callback嵌套
+ * 用Promise封装异步读取文件方法
+ * @param  {string} page html文件名称
+ * @return {promise}      
  */
+function render( page ) {
+  return new Promise(( resolve, reject ) => {
+    let viewUrl = `./view/${page}`
+    fs.readFile(viewUrl, "binary", ( err, data ) => {
+      if ( err ) {
+        reject( err )
+      } else {
+        resolve( data )
+      }
+    })
+  })
+}
+
+/**
+ * 根据URL获取HTML内容
+ * @param  {string} url koa2上下文的url，ctx.url
+ * @return {string}     获取HTML文件内容
+ */
+async function route( url ) {
+  let view = '404.html'
+  switch ( url ) {
+    case '/':
+      view = 'index.html'
+      break
+    case '/index':
+      view = 'index.html'
+      break
+    case '/todo':
+      view = 'todo.html'
+      break
+    case '/404':
+      view = '404.html'
+      break
+    default:
+      break
+  }
+  let html = await render( view )
+  console.log(html);
+  return html
+}
+
+app.use( async ( ctx ) => {
+  let url = ctx.request.url
+  let html = await route( url )
+  ctx.body = html
+})
+
+app.listen(3000)
+console.log('[demo] route-simple is starting at port 3000')
