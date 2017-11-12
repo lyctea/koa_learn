@@ -1,18 +1,14 @@
-const mysql = require("mysql");
+const { query } = require('./async-db');
 
-const pool = mysql.createPool({
-    host: "localhost",
-    user: "root",
-    password: "309003",
-    database: "lyctea_db"
-});
+async function selecAllData() {
+    let sql = 'SELECT * FROM student';
+    let dataList = await query(sql);
+    return dataList;
+}
 
-pool.getConnection(function(err, connection) {
-    connection.query("SELECT * FROM student", (err, results, fields) => {
-        //结束会话
-        connection.release();
+async function getData() {
+    let dataList = await selecAllData();
+    console.log(dataList);
+}
 
-        //如果有异常就抛出
-        if (err) throw err;
-    });
-});
+getData();
