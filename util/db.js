@@ -8,8 +8,6 @@ const pool = mysql.createPool({
 });
 
 let query = function(sql, values) {
-    console.log(sql);
-    console.log(values);
     return new Promise((resolve, reject) => {
         pool.getConnection(function(err, connection) {
             if (err) {
@@ -28,4 +26,6 @@ let query = function(sql, values) {
     });
 };
 
-module.exports = { query };
+module.exports = {
+    query
+};
